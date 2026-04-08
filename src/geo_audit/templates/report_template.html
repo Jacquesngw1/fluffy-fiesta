@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GEO Audit Report – {{ results.brand }}</title>
+  <style>
+    /* ---- Base ---- */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-size: 14px;
+      color: #1a1a2e;
+      background: #fff;
+      line-height: 1.6;
+    }
+
+    /* ---- Page layout ---- */
+    .page { max-width: 900px; margin: 0 auto; padding: 40px 48px; }
+
+    /* ---- Header ---- */
+    .header { border-bottom: 3px solid #4f46e5; padding-bottom: 24px; margin-bottom: 32px; }
+    .header h1 { font-size: 28px; color: #4f46e5; margin-bottom: 4px; }
+    .header .subtitle { color: #6b7280; font-size: 13px; }
+    .header .meta { margin-top: 12px; font-size: 12px; color: #9ca3af; }
+
+    /* ---- Score card ---- */
+    .score-card {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      background: #f5f3ff;
+      border-left: 6px solid #4f46e5;
+      border-radius: 8px;
+      padding: 24px 32px;
+      margin-bottom: 32px;
+    }
+    .score-circle {
+      width: 96px; height: 96px;
+      border-radius: 50%;
+      background: #4f46e5;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .score-circle .number { font-size: 32px; font-weight: 700; line-height: 1; }
+    .score-circle .out-of { font-size: 12px; opacity: 0.8; }
+    .score-details h2 { font-size: 20px; margin-bottom: 8px; }
+    .score-details p { color: #6b7280; font-size: 13px; }
+
+    /* ---- Category grid ---- */
+    .categories {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    .category-card {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 16px;
+      text-align: center;
+    }
+    .category-card .cat-name { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: #6b7280; }
+    .category-card .cat-score { font-size: 28px; font-weight: 700; color: #4f46e5; margin: 4px 0; }
+
+    /* ---- Section ---- */
+    .section { margin-bottom: 32px; }
+    .section h3 {
+      font-size: 16px;
+      font-weight: 600;
+      border-bottom: 1px solid #e5e7eb;
+      padding-bottom: 8px;
+      margin-bottom: 16px;
+    }
+
+    /* ---- Recommendations ---- */
+    .rec-list { list-style: none; }
+    .rec-list li { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .badge-P0 { background: #fef2f2; color: #dc2626; }
+    .badge-P1 { background: #fff7ed; color: #ea580c; }
+    .badge-P2 { background: #fefce8; color: #ca8a04; }
+    .badge-P3 { background: #f0fdf4; color: #16a34a; }
+
+    /* ---- Detail tables ---- */
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { background: #f3f4f6; text-align: left; padding: 8px 12px; font-weight: 600; }
+    td { padding: 8px 12px; border-bottom: 1px solid #e5e7eb; }
+    tr:last-child td { border-bottom: none; }
+    .check-yes { color: #16a34a; font-weight: 600; }
+    .check-no  { color: #dc2626; font-weight: 600; }
+
+    /* ---- Footer ---- */
+    .footer {
+      border-top: 1px solid #e5e7eb;
+      padding-top: 16px;
+      margin-top: 40px;
+      font-size: 11px;
+      color: #9ca3af;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+
+    <!-- Header -->
+    <div class="header">
+      <h1>GEO Audit Report</h1>
+      <div class="subtitle">Generative Engine Optimization Readiness Assessment</div>
+      <div class="meta">
+        Brand: <strong>{{ results.brand }}</strong> &nbsp;|&nbsp;
+        URL: <strong>{{ results.url }}</strong>
+      </div>
+    </div>
+
+    <!-- Score card -->
+    {% set score = results.score %}
+    <div class="score-card">
+      <div class="score-circle">
+        <span class="number">{{ score.total }}</span>
+        <span class="out-of">/100</span>
+      </div>
+      <div class="score-details">
+        <h2>GEO Readiness Score</h2>
+        <p>
+          {% if score.total >= 80 %}
+            Excellent – your site is well-optimised for Generative Engines.
+          {% elif score.total >= 60 %}
+            Good – a few improvements will significantly boost your GEO score.
+          {% elif score.total >= 40 %}
+            Fair – important optimisations are needed. Follow the recommendations below.
+          {% else %}
+            Poor – significant GEO work is required. Start with P0 items.
+          {% endif %}
+        </p>
+      </div>
+    </div>
+
+    <!-- Category breakdown -->
+    <div class="categories">
+      {% for cat, val in score.categories.items() %}
+      <div class="category-card">
+        <div class="cat-name">{{ cat }}</div>
+        <div class="cat-score">{{ val }}</div>
+        <div style="font-size:11px; color:#9ca3af;">/100</div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Recommendations -->
+    {% if results.recommendations %}
+    <div class="section">
+      <h3>⚠️ Priority Recommendations</h3>
+      <ul class="rec-list">
+        {% for rec in results.recommendations %}
+        <li>
+          <span class="badge badge-{{ rec.priority }}">{{ rec.priority }}</span>
+          <span>{{ rec.message }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+
+    <!-- Technical checks -->
+    <div class="section">
+      <h3>⚙️ Technical Checks</h3>
+      <table>
+        <thead>
+          <tr><th>Check</th><th>Result</th></tr>
+        </thead>
+        <tbody>
+          {% set tech = results.technical %}
+          <tr><td>HTTPS</td><td class="{{ 'check-yes' if tech.https else 'check-no' }}">{{ '✓ Yes' if tech.https else '✗ No' }}</td></tr>
+          <tr><td>robots.txt</td><td class="{{ 'check-yes' if tech.robots_txt_present else 'check-no' }}">{{ '✓ Present' if tech.robots_txt_present else '✗ Missing' }}</td></tr>
+          <tr><td>llms.txt</td><td class="{{ 'check-yes' if tech.llms_txt_present else 'check-no' }}">{{ '✓ Present' if tech.llms_txt_present else '✗ Missing' }}</td></tr>
+          <tr><td>Avg Response Time</td><td>{{ tech.avg_response_time_ms }} ms</td></tr>
+          <tr><td>Page Speed Score</td><td>{{ tech.page_speed_score }}/100</td></tr>
+          <tr><td>Semantic HTML Score</td><td>{{ tech.semantic_html_score }}/100</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Schema -->
+    <div class="section">
+      <h3>🧩 Schema.org Results</h3>
+      <table>
+        <thead>
+          <tr><th>Check</th><th>Result</th></tr>
+        </thead>
+        <tbody>
+          {% set schema = results.schema %}
+          <tr><td>Organization schema</td><td class="{{ 'check-yes' if schema.organization_present else 'check-no' }}">{{ '✓ Present' if schema.organization_present else '✗ Missing' }}</td></tr>
+          <tr><td>WebSite schema</td><td class="{{ 'check-yes' if schema.website_schema_present else 'check-no' }}">{{ '✓ Present' if schema.website_schema_present else '✗ Missing' }}</td></tr>
+          <tr>
+            <td>sameAs links</td>
+            <td>
+              {% if schema.same_as_links %}
+                {% for link in schema.same_as_links %}
+                  <div>{{ link }}</div>
+                {% endfor %}
+              {% else %}
+                <span class="check-no">✗ None found</span>
+              {% endif %}
+            </td>
+          </tr>
+          <tr>
+            <td>Schema types found</td>
+            <td>{{ schema.schema_types_found | join(', ') or 'None' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Citations -->
+    {% if not results.citations.skipped %}
+    <div class="section">
+      <h3>🤖 LLM Citation Results</h3>
+      <table>
+        <thead>
+          <tr><th>Model</th><th>Cited</th><th>Excerpt</th></tr>
+        </thead>
+        <tbody>
+          {% for model_name, data in results.citations.results.items() %}
+          <tr>
+            <td>{{ model_name }}</td>
+            <td class="{{ 'check-yes' if data.cited else 'check-no' }}">{{ '✓ Yes' if data.cited else '✗ No' }}</td>
+            <td style="font-size:11px; color:#6b7280;">{{ data.excerpt[:120] }}{% if data.excerpt|length > 120 %}…{% endif %}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+
+    <!-- Footer -->
+    <div class="footer">
+      Generated by <strong>GEO Audit Tool</strong> &ndash; Neuralis Black &nbsp;|&nbsp;
+      <a href="https://www.neuralisblack.com">neuralisblack.com</a>
+    </div>
+
+  </div>
+</body>
+</html>
